@@ -1,0 +1,137 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    
+    <link rel="stylesheet" href="{% static 'shop/style.css' %}">
+    <title>Document</title>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                    <a class="navbar-brand" href="#">Navbar</a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                      <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                      <div class="navbar-nav">
+                        <a class="nav-item nav-link active" href="#">Home <span class="sr-only">(current)</span></a>
+                        <a class="nav-item nav-link" href="#">Features</a>
+                        <button id="cart" data-html="true" type="button" class="btn btn-secondary" data-container="body" data-toggle="popover" data-placement="bottom" >
+                            Cart(0)
+                          </button>
+                        <a class="nav-item nav-link disabled" href="#">Disabled</a>
+                      </div>
+                    </div>
+                  </nav>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <form class="card card-sm">
+                    <div class="card-body row no-gutters align-items-center">
+                        <div class="col">
+                            <input type="search" name="item_name" placeholder="Search for products" class="form-control form-control-borderless">
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-success" type="submit">Search</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            {% for product in product_objects %}
+            <div class="col-md-3">
+                <div class="card">
+                    <img src="{{ product.image }}" class="card-img-top">
+                    <div class="card-body">
+                        <div id="nm{{product.id}}" class="card-title">
+                            {{ product.title }}
+                        </div>
+                        <div class="card-text">
+                            {{ product.price }}
+                        </div>
+                        <div class="card-loca">
+                            {{ product.location }}
+                        </div>
+                        <a href="/{{ product.id }}" class="btn btn-warning">View</a>
+                        <button id="{{ product.id }}" class="btn atc btn-warning">Add to cart</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+         <div class="row">
+              <div class="col-md-3 offset-md-4">
+                 <ul class="pagination">
+                     {% if product_objects.has_previous %}
+                     <li class="page-item">
+                        <a class="page-link" href="?page={{ product_objects.previous_page_number }}">Previous</a>
+                     </li>
+                     {% endif %}
+
+                     <li class="page-item active">
+                        <a class="page-link" href="?page={{ product_objects.number }}">Current</a>
+                     </li>
+                     
+
+                     {% if product_objects.has_next %}
+                     <li class="page-item">
+                        <a class="page-link" href="?page={{ product_objects.next_page_number }}">Next</a>
+                     </li>
+                     {% endif %}
+                 </ul>
+              </div>
+         </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <script type="text/javascript">
+        var cart_str = "";
+        var cart = {};
+
+        // Clear cart in localStorage when the page loads
+        localStorage.removeItem('cart');
+
+        $(document).on('click','.atc',function() {
+            item_id = this.id.toString();
+            if(cart[item_id]!=undefined) {
+                cart[item_id]+=1;
+            } else {
+                cart[item_id]=1;
+            }
+            localStorage.setItem('cart',JSON.stringify(cart));
+            displayData();
+        });
+
+        function displayData() {
+            cart_str="";
+            var temp_cart=JSON.parse(localStorage.getItem('cart'));
+            for (var d in temp_cart) {
+                cart_str += (document.getElementById("nm"+d).innerHTML + " Qty: " + temp_cart[d]).toString() + "<br>";
+            }
+            $('#cart').html('Cart(' + Object.keys(temp_cart).length + ')'); // Update cart button text
+        }
+     
+        $(function () {
+            $('[data-toggle="popover"]').popover({
+                title: '<h3 class="custom-title"><i class="fa fa-info-circle"></i> Your Cart</h3>',
+                content: function(){
+                    return cart_str || 'Your cart is empty.';
+                },
+                html: true
+            });
+        });
+    </script>
+</body>
+</html>
